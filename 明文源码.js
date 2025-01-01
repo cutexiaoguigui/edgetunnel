@@ -1288,7 +1288,7 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, env
 
 				return randomIP.join('.');
 			}
-			addresses = addresses.concat('127.0.0.1:1234#TUN');
+			addresses = addresses.concat('127.0.0.1:1234#TUN测试');
 			if (hostName.includes(".workers.dev")) {
 				addressesnotls = addressesnotls.concat(cfips.map(cidr => generateRandomIPFromCIDR(cidr) + '#TUN节点'));
 			} else {
