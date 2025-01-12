@@ -1286,11 +1286,11 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, fak
 
 				return randomIP.join('.');
 			}
-			addresses = addresses.concat('127.0.0.1:1234#CFnat');
+			addresses = addresses.concat('127.0.0.1:1234#测试节点');
 			if (hostName.includes(".workers.dev")) {
-				addressesnotls = addressesnotls.concat(cfips.map(cidr => generateRandomIPFromCIDR(cidr) + '#CF随机节点'));
+				addressesnotls = addressesnotls.concat(cfips.map(cidr => generateRandomIPFromCIDR(cidr) + '#TUN节点'));
 			} else {
-				addresses = addresses.concat(cfips.map(cidr => generateRandomIPFromCIDR(cidr) + '#CF随机节点'));
+				addresses = addresses.concat(cfips.map(cidr => generateRandomIPFromCIDR(cidr) + '#TUN节点'));
 			}
 		}
 	}
