@@ -1363,281 +1363,314 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, fak
 		else 订阅器 += `<br>SUBAPI（订阅转换后端）: ${subProtocol}://${subConverter}<br>SUBCONFIG（订阅转换配置文件）: ${subConfig}`;
 		const 动态UUID信息 = (uuid != userID) ? `TOKEN: ${uuid}<br>UUIDNow: ${userID}<br>UUIDLow: ${userIDLow}<br>${userIDTime}TIME（动态UUID有效时间）: ${有效时间} 天<br>UPTIME（动态UUID更新时间）: ${更新时间} 时（北京时间）<br><br>` : `${userIDTime}`;
 		const 节点配置页 = `
-		<!DOCTYPE html>
-		<html lang="zh-CN">
-		<head>
-			<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>优选订阅列表</title>
-			<style>
-				.subscription-section {
-					margin-bottom: 20px;
-					border: 1px solid #ddd;
-					border-radius: 10px;
-					padding: 15px;
-					background-color: #f9f9f9;
-				}
-				.subscription-section strong {
-					color: #007bff;
-					font-weight: bold;
-				}
-				.subscription-section strong:hover{
-					color: #0056b3;
-					}
-				.subscription-title {
-					font-size: 18px;
-					margin-bottom: 10px;
-					color: #007bff;
-					font-weight: bold;
-				}
-				.subscription-title:hover {
-					color: #0056b3;
-				}
-				.subscription-link-item {
-					margin-bottom: 5px;
-					/*使用 flex 布局*/
-					display: flex;
-					flex-direction: column;/*垂直排列*/
-					align-items: flex-start;/*靠左对齐*/
-					gap: 5px;
-				}
-				.subscription-link-item  a{
-					color: #007bff;
-					text-decoration: underline;
-					cursor: pointer;
-				}
-				.subscription-link-item  a:hover{
-					color: #0056b3;
-				}
-				
-				/*调整二维码容器样式，使其自适应宽度，默认隐藏*/
-				.qrcode-container {
-					margin: 10px 0;
-					display: none;
-					justify-content: center; /* 水平居中 */
-					width: 100%; /* 自适应宽度 */
-				}
-				
-				.qrcode-container.active {
-				display:flex; /* 点击时显示 */
-				}
-				.notice-container {
-					margin-top: 15px;
-				}
-				.notice-header {
-						font-size: 16px;
-						cursor: pointer;
-							color: #007bff;
-							margin-bottom: 5px;
-							transition: color 0.3s ease;
-						}
-					.notice-header:hover{
-						color: #0056b3;
-					}
-				.notice-content {
-					display: none;
-					padding: 10px;
-						background-color: #f9f9f9;
-						border-left: 3px solid #007bff; /* 天蓝色边框 */
-						border-radius: 10px;
-						margin-top: 10px;
-				}
-				.notice-content ul{
-					padding-left: 20px;
-					list-style-type: disc;
-				}
-
-				.notice-content ul li{
-					margin-bottom: 5px;
-				}
-				.config-info {
-					margin-top: 20px;
-					text-align: left;
-				}
-				.config-info-header {
-					font-size: 18px;
-					margin-bottom: 10px;
-					color: #007bff;
-						font-weight: bold;
-				}
-				.config-info-header:hover {
-						color: #0056b3;
-				}
-				.config-info-detail {
-					font-size: 14px;
-					margin-bottom: 10px;
-					white-space: pre-line;
-				}
-				.v2ray-clash-section{
-					margin-top: 20px;
-						display: flex;
-						flex-direction: column;
-						gap: 10px;
-				}
-				.v2ray-section-header{
-						font-size: 18px;
-					margin-bottom: 10px;
-					color: #007bff;
-						font-weight: bold;
-						text-align: left;
-				}
-					.v2ray-section-header:hover {
-						color: #0056b3;
-				}
-				.clash-meta-section-header{
-						font-size: 18px;
-					margin-bottom: 10px;
-					color: #007bff;
-						font-weight: bold;
-						text-align: left;
-				}
-					.clash-meta-section-header:hover{
-						color: #0056b3;
-					}
-					.v2ray-link{
-						color: #007bff;
-						text-decoration: underline;
-						cursor: pointer;
-						display: inline-block;
-					}
-					.v2ray-link:hover{
-						color: #0056b3;
-					}
-				.cmad{
-						margin-top: 20px;
-						text-align: left;
-						font-size: 12px;
-						color: #555;
-					}
-			</style>
-		</head>
-		<body>
-			<div class="subscription-section">
-				<div class="subscription-title">
-					Subscribe / sub 订阅地址
-					<br>
-					点击链接自动 <strong>复制订阅链接</strong> 并 <strong>生成订阅二维码</strong>
-				</div>
-				<div class="subscription-link-item">
-					自适应订阅地址:<br>
-					<a href="javascript:void(0)" onclick="copyToClipboard('https://${proxyhost}${hostName}/${uuid}?sub', 'qrcode_0', this)">https://${proxyhost}${hostName}/${uuid}</a>
-				
-					<div id="qrcode_0" class="qrcode-container"></div>
-				</div>
-				<div class="subscription-link-item">
-					Base64订阅地址:
-					<br>
-					<a href="javascript:void(0)" onclick="copyToClipboard('https://${proxyhost}${hostName}/${uuid}?b64','qrcode_1', this)">https://${proxyhost}${hostName}/${uuid}?b64</a>
-					<div id="qrcode_1" class="qrcode-container"></div>
-				</div>
-				<div class="subscription-link-item">
-					clash订阅地址:
-					<br>
-					<a href="javascript:void(0)" onclick="copyToClipboard('https://${proxyhost}${hostName}/${uuid}?clash','qrcode_2', this)">https://${proxyhost}${hostName}/${uuid}?clash</a>
-					<div id="qrcode_2" class="qrcode-container"></div>
-				</div>
-				<div class="subscription-link-item">
-					singbox订阅地址:
-					<br>
-					<a href="javascript:void(0)" onclick="copyToClipboard('https://${proxyhost}${hostName}/${uuid}?sb','qrcode_3', this)">https://${proxyhost}${hostName}/${uuid}?sb</a>
-					<div id="qrcode_3" class="qrcode-container"></div>
-				</div>
-
-			</div>
-			<div class="notice-container">
-				<div class="notice-header" onclick="toggleNotice()">实用订阅技巧∨</div>
-				<div id="noticeContent" class="notice-content" style="display: none;">
-					<ul>
-						<li><strong>1.</strong> 如您使用的是 PassWall、SSR+ 等路由插件，推荐使用 <strong>Base64订阅地址</strong> 进行订阅；</li>
-						<li>
-							<strong>2.</strong> 快速切换 <a href='${atob('aHR0cHM6Ly9naXRodWIuY29tL2NtbGl1L1dvcmtlclZsZXNzMnN1Yg==')}'>优选订阅生成器</a> 至：sub.google.com，您可将"?sub=sub.google.com"参数添加到链接末尾，例如：<br>
-							  https://${proxyhost}${hostName}/${uuid}<strong>?sub=sub.google.com</strong>
-						</li>
-						<li>
-							<strong>3.</strong> 快速更换 PROXYIP 至：proxyip.fxxk.dedyn.io:443，您可将"?proxyip=proxyip.fxxk.dedyn.io:443"参数添加到链接末尾，例如：<br>
-							  https://${proxyhost}${hostName}/${uuid}<strong>?proxyip=proxyip.fxxk.dedyn.io:443</strong>
-						</li>
-						<li>
-							<strong>4.</strong> 快速更换 SOCKS5 至：user:password@127.0.0.1:1080，您可将"?socks5=user:password@127.0.0.1:1080"参数添加到链接末尾，例如：<br>
-							  https://${proxyhost}${hostName}/${uuid}<strong>?socks5=user:password@127.0.0.1:1080</strong>
-						</li>
-						<li>
-							<strong>5.</strong> 如需指定多个参数则需要使用'&'做间隔，例如：<br>
-							  https://${proxyhost}${hostName}/${uuid}?sub=sub.google.com<strong>&</strong>proxyip=proxyip.fxxk.dedyn.io
-						</li>
-					</ul>
-				</div>
-			</div>
-			<div class="config-info">
-				<div class="config-info-header">${FileName} 配置信息</div>
+				<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>优选订阅列表</title>
+	<style>
+		body {
+			font-family: sans-serif;
+			margin: 20px;
+			background-color: #f0f8ff;
+			color: #333;
+			line-height: 1.6;
+		}
+		.main-container {
+			display: flex;
+			max-width: 90vw;
+			margin: 20px auto;
+			background-color: white;
+			 border-radius: 10px;
+			box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+		   padding: 20px;
+			gap: 20px; /* 设置列之间的间距 */
+		}
+	
+		.left-container {
+			 flex: 0 0 40vw; /* 左侧固定宽度 */
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+		}
+		 .right-container {
+			 flex: 1; /* 右侧占据剩余空间 */
+			  padding-left: 20px;
 			
-				<div class="config-info-detail">
-				${动态UUID信息}HOST: ${hostName}<br>
-					UUID: ${userID}<br>
-					FKID: ${fakeUserID}<br>
-				UA: ${UA}<br>
-					${订阅器}
+		 }
+		 .left-top-section {
+				border: 1px solid #ddd;
+				border-radius: 10px;
+				padding: 15px;
+				background-color: #f9f9f9;
+			}
+			.left-top-section strong {
+				color: #007bff;
+				font-weight: bold;
+			}
+			.left-top-section strong:hover{
+				color: #0056b3;
+			 }
+			.left-top-section .subscription-title {
+				font-size: 18px;
+				 margin-bottom: 10px;
+				color: #007bff;
+				 font-weight: bold;
+			}
+			 .left-top-section .subscription-title:hover {
+				color: #0056b3;
+			}
+			 .left-top-section .subscription-link-item {
+				margin-bottom: 5px;
+				 /*使用 flex 布局*/
+				display: flex;
+				flex-direction: column;/*垂直排列*/
+				align-items: flex-start;/*靠左对齐*/
+				gap: 5px;
+			}
+			 .left-top-section .subscription-link-item  a{
+				color: #007bff;
+				text-decoration: underline;
+				  cursor: pointer;
+			}
+			 .left-top-section .subscription-link-item a:hover{
+				   color: #0056b3;
+			}
+			
+			 .left-top-section  .qrcode-container {
+				margin: 10px 0;
+				display: none;
+				justify-content: center; /* 水平居中 */
+				width: 100%; /* 自适应宽度 */
+			 }
+		
+			 .left-top-section  .qrcode-container.active {
+			  display:flex; /* 点击时显示 */
+			 }
+			 .left-bottom-section {
+					border: 1px solid #ddd;
+				 border-radius: 10px;
+					padding: 15px;
+					 background-color: #f9f9f9;
+			 }
+			  .left-bottom-section  .notice-header {
+				font-size: 16px;
+				  cursor: pointer;
+					color: #007bff;
+					margin-bottom: 5px;
+					transition: color 0.3s ease;
+				}
+			.left-bottom-section .notice-header:hover{
+				   color: #0056b3;
+			 }
+			.left-bottom-section .notice-content {
+				display: none;
+				padding: 10px;
+				background-color: #f9f9f9;
+				border-left: 3px solid #007bff; /* 天蓝色边框 */
+				  border-radius: 10px;
+				   margin-top: 10px;
+			}
+			  .left-bottom-section .notice-content ul{
+				padding-left: 20px;
+				list-style-type: disc;
+			}
+	
+			.left-bottom-section .notice-content ul li{
+				 margin-bottom: 5px;
+			}
+			  .right-container .config-info {
+				margin-top: 20px;
+				text-align: left;
+				 flex: 1;
+			 }
+			.right-container .config-info-header {
+			   font-size: 18px;
+			   margin-bottom: 10px;
+			   color: #007bff;
+			   font-weight: bold;
+			 }
+			  .right-container .config-info-header:hover {
+				color: #0056b3;
+			 }
+			.right-container .config-info-detail {
+				font-size: 14px;
+				margin-bottom: 10px;
+				white-space: pre-line;
+			}
+			 .right-container .v2ray-clash-section{
+				  margin-top: 20px;
+				display: flex;
+				 flex-direction: column;
+				 gap: 10px;
+			  }
+			   .right-container .v2ray-section-header{
+					   font-size: 18px;
+			   margin-bottom: 10px;
+			   color: #007bff;
+				 font-weight: bold;
+			   text-align: left;
+			}
+			 .right-container .v2ray-section-header:hover {
+				color: #0056b3;
+			 }
+			.right-container .clash-meta-section-header{
+					font-size: 18px;
+			   margin-bottom: 10px;
+			   color: #007bff;
+				 font-weight: bold;
+			   text-align: left;
+			 }
+			  .right-container .clash-meta-section-header:hover{
+				   color: #0056b3;
+			  }
+			.right-container .v2ray-link{
+				   color: #007bff;
+				 text-decoration: underline;
+				 cursor: pointer;
+				  display: inline-block;
+			 }
+			  .right-container .v2ray-link:hover{
+					color: #0056b3;
+			 }
+			.cmad{
+				 margin-top: 20px;
+				   text-align: left;
+				  font-size: 12px;
+				 color: #555;
+			}
+	</style>
+		<div class="main-container">
+			<div class="left-container">
+				<div class="left-top-section">
+					<div class="subscription-title">
+						订阅地址
+					</div>
+					<div class="subscription-link-item">
+						自适应订阅地址:<br>
+						<a href="javascript:void(0)" onclick="copyToClipboard('https://${proxyhost}${hostName}/${uuid}?sub','qrcode_0', this)">https://${proxyhost}${hostName}/${uuid}</a>
+					
+						<div id="qrcode_0" class="qrcode-container"></div>
+					</div>
+					<div class="subscription-link-item">
+						Base64订阅地址:
+						<br>
+						<a href="javascript:void(0)" onclick="copyToClipboard('https://${proxyhost}${hostName}/${uuid}?b64','qrcode_1', this)">https://${proxyhost}${hostName}/${uuid}?b64</a>
+						<div id="qrcode_1" class="qrcode-container"></div>
+					</div>
+					<div class="subscription-link-item">
+						clash订阅地址:
+						<br>
+						<a href="javascript:void(0)" onclick="copyToClipboard('https://${proxyhost}${hostName}/${uuid}?clash','qrcode_2', this)">https://${proxyhost}${hostName}/${uuid}?clash</a>
+						<div id="qrcode_2" class="qrcode-container"></div>
+					</div>
+					<div class="subscription-link-item">
+						singbox订阅地址:
+						<br>
+						<a href="javascript:void(0)" onclick="copyToClipboard('https://${proxyhost}${hostName}/${uuid}?sb','qrcode_3', this)">https://${proxyhost}${hostName}/${uuid}?sb</a>
+						<div id="qrcode_3" class="qrcode-container"></div>
+					</div>
+	
+				</div>
+				<div class="left-bottom-section notice-container">
+					 <div class="notice-header" onclick="toggleNotice()">实用订阅技巧∨</div>
+					<div id="noticeContent" class="notice-content" style="display: none;">
+						<ul>
+							<li><strong>1.</strong> 如您使用的是 PassWall、SSR+ 等路由插件，推荐使用 <strong>Base64订阅地址</strong> 进行订阅；</li>
+							<li>
+								<strong>2.</strong> 快速切换 <a href='${atob('aHR0cHM6Ly9naXRodWIuY29tL2NtbGl1L1dvcmtlclZsZXNzMnN1Yg==')}'>优选订阅生成器</a> 至：sub.example.com，您可将"?sub=sub.example.com"参数添加到链接末尾，例如：<br>
+								  https://test.example.com<strong>?sub=sub.example.com</strong>
+							</li>
+							<li>
+								<strong>3.</strong> 快速更换 PROXYIP 至：proxyip.fxxk.dedyn.io:443，您可将"?proxyip=proxyip.fxxk.dedyn.io:443"参数添加到链接末尾，例如：<br>
+								  https://test.example.com<strong>?proxyip=proxyip.fxxk.dedyn.io:443</strong>
+							</li>
+							<li>
+								<strong>4.</strong> 快速更换 SOCKS5 至：user:password@127.0.0.1:1080，您可将"?socks5=user:password@127.0.0.1:1080"参数添加到链接末尾，例如：<br>
+								  https://test.example.com<strong>?socks5=user:password@127.0.0.1:1080</strong>
+							</li>
+							<li>
+								<strong>5.</strong> 如需指定多个参数则需要使用'&'做间隔，例如：<br>
+								  https://test.example.com?sub=sub.example.com<strong>&</strong>proxyip=proxyip.fxxk.dedyn.io
+							</li>
+						</ul>
+					</div>
 				</div>
 			</div>
-			<div class="v2ray-clash-section">
-				<div class="v2ray-section-header">v2ray</div>
-					<div  class="subscription-link-item">
-						<a href="javascript:void(0)" onclick="copyToClipboard('${v2ray}','qrcode_v2ray', this)" class="v2ray-link">${v2ray}</a>
-						<div id="qrcode_v2ray"  class="qrcode-container"></div>
+			<div class="right-container">
+				<div class="config-info">
+				<!--//  <a class="config-info-header"  href="${_url.pathname}/edit" style="display: inline-block;text-decoration: none;">${FileName} 配置信息</a> -->
+				   <div class="config-info-header">${FileName} 配置信息</div>
+					<div class="config-info-detail">
+					${动态UUID信息}HOST: ${hostName}
+					<!--	// UUID: ${userID}
+						// FKID: ${fakeUserID}
+					// UA: ${UA} -->
+						${订阅器}
+					</div>
 				</div>
-					<div class="clash-meta-section-header">clash-meta</div>
-				<div >
-					${clash}
+				<!-- <div class="v2ray-clash-section">
+					<div class="v2ray-section-header">v2ray</div>
+						<div  class="subscription-link-item">
+							<a href="javascript:void(0)" onclick="copyToClipboard('${v2ray}','qrcode_v2ray', this)" class="v2ray-link">${v2ray}</a>
+							<div id="qrcode_v2ray"  class="qrcode-container"></div>
+					</div>
+						<div class="clash-meta-section-header">clash-meta</div>
+					<div >
+						${clash}
+					</div>
 				</div>
+					<div class="cmad">
+					${cmad}
+					</div> -->
 			</div>
-				<div class="cmad">
-				${cmad}
-				</div>
-			<script src="https://cdn.jsdelivr.net/npm/@keeex/qrcodejs-kx@1.0.2/qrcode.min.js"></script>
-			<script>
-				function copyToClipboard(text, qrcode, element) {
-					navigator.clipboard.writeText(text).then(() => {
-						alert('已复制到剪贴板');
-					}).catch(err => {
-						console.error('复制失败:', err);
-					});
-					const qrcodeDiv = document.getElementById(qrcode);
-					qrcodeDiv.innerHTML = '';
-				
-					//添加 active class
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/@keeex/qrcodejs-kx@1.0.2/qrcode.min.js"></script>
+		<script>
+			function copyToClipboard(text, qrcode, element) {
+				navigator.clipboard.writeText(text).then(() => {
+					alert('已复制到剪贴板');
+				}).catch(err => {
+					console.error('复制失败:', err);
+				});
+				const qrcodeDiv = document.getElementById(qrcode);
+				qrcodeDiv.innerHTML = '';
+			
+				//添加 active class
 					if(qrcodeDiv.classList.contains('active')){
 							qrcodeDiv.classList.remove('active');
 						}else{
 							qrcodeDiv.classList.add('active');
 						}
 				
-					new QRCode(qrcodeDiv, {
-						text: text,
-						width: 220, // 调整宽度
-						height: 220, // 调整高度
-						colorDark: "#000000", // 二维码颜色
-						colorLight: "#ffffff", // 背景颜色
-						correctLevel: QRCode.CorrectLevel.Q, // 设置纠错级别
-						scale: 1 // 调整像素颗粒度
-					});
-				}
-
-				function toggleNotice() {
-					const noticeContent = document.getElementById('noticeContent');
-					if (noticeContent.style.display === 'none' ) {
-							noticeContent.style.display = 'block';
-							document.querySelector('.notice-header').textContent = '实用订阅技巧∧';
-						} else {
-							noticeContent.style.display = 'none';
-							document.querySelector('.notice-header').textContent = '实用订阅技巧∨';
-						}
-				}
-				document.addEventListener('DOMContentLoaded', () => {
-					document.getElementById('noticeContent').style.display = 'none';
+				new QRCode(qrcodeDiv, {
+					text: text,
+					width: 220, // 调整宽度
+					height: 220, // 调整高度
+					colorDark: "#000000", // 二维码颜色
+					colorLight: "#ffffff", // 背景颜色
+					correctLevel: QRCode.CorrectLevel.Q, // 设置纠错级别
+					scale: 1 // 调整像素颗粒度
 				});
-			</script>
-		</body>
-		</html>
+			}
+	
+			function toggleNotice() {
+				const noticeContent = document.getElementById('noticeContent');
+				if (noticeContent.style.display === 'none' ) {
+						noticeContent.style.display = 'block';
+						document.querySelector('.notice-header').textContent = '实用订阅技巧∧';
+					} else {
+						noticeContent.style.display = 'none';
+						document.querySelector('.notice-header').textContent = '实用订阅技巧∨';
+					}
+			}
+			document.addEventListener('DOMContentLoaded', () => {
+				document.getElementById('noticeContent').style.display = 'none';
+			});
+		</script>
+	</body>
+	</html>
 			`;
 		return 节点配置页;
 	} else {
