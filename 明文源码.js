@@ -1574,8 +1574,8 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, fak
 	
 				</div>
 				<div class="left-bottom-section notice-container">
-					 <div class="notice-header" onclick="toggleNotice()">实用订阅技巧∨</div>
-					<div id="noticeContent" class="notice-content" style="display: none;">
+					 <div class="notice-header" onclick="toggleNotice()">订阅技巧∧</div>
+					<div id="noticeContent" class="notice-content" style="display: block;">
 						<ul>
 							<li><strong>1.</strong> 如您使用的是 PassWall、SSR+ 等路由插件，推荐使用 <strong>Base64订阅地址</strong> 进行订阅；</li>
 							<li>
@@ -1659,10 +1659,10 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, fak
 				const noticeContent = document.getElementById('noticeContent');
 				if (noticeContent.style.display === 'none' ) {
 						noticeContent.style.display = 'block';
-						document.querySelector('.notice-header').textContent = '实用订阅技巧∧';
+						document.querySelector('.notice-header').textContent = '订阅技巧∧';
 					} else {
 						noticeContent.style.display = 'none';
-						document.querySelector('.notice-header').textContent = '实用订阅技巧∨';
+						document.querySelector('.notice-header').textContent = '订阅技巧∨';
 					}
 			}
 			document.addEventListener('DOMContentLoaded', () => {
