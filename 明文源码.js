@@ -1666,7 +1666,7 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, fak
 					}
 			}
 			document.addEventListener('DOMContentLoaded', () => {
-				document.getElementById('noticeContent').style.display = 'none';
+				document.getElementById('noticeContent').style.display = 'block';
 			});
 		</script>
 	</body>
