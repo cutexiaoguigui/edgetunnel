@@ -4,8 +4,8 @@ import { connect } from 'cloudflare:sockets';
 let userID = '';
 let proxyIP = '';
 //let sub = '';
-let subConverter = 'SUBAPI.fxxk.dedyn.io';
-let subConfig = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini_MultiMode.ini";
+let subConverter = atob('U1VCQVBJLkNNTGl1c3Nzcy5uZXQ=');
+let subConfig = atob('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0FDTDRTU1IvQUNMNFNTUi9tYXN0ZXIvQ2xhc2gvY29uZmlnL0FDTDRTU1JfT25saW5lX01pbmlfTXVsdGlNb2RlLmluaQ==');
 let subProtocol = 'https';
 let subEmoji = 'true';
 let socks5Address = '';
@@ -35,6 +35,7 @@ let ChatID;
 let proxyhosts = [];
 let proxyhostsURL = '';
 let RproxyIP = 'false';
+const httpPorts = ["8080", "8880", "2052", "2082", "2086", "2095"];
 let httpsPorts = ["2053", "2083", "2087", "2096", "8443"];
 let 有效时间 = 7;
 let 更新时间 = 3;
@@ -137,13 +138,13 @@ export default {
 				if (url.searchParams.has('notls')) noTLS = 'true';
 
 				if (url.searchParams.has('proxyip')) {
-					path = `/?ed=2560&proxyip=${url.searchParams.get('proxyip')}`;
+					path = `/?proxyip=${url.searchParams.get('proxyip')}`;
 					RproxyIP = 'false';
 				} else if (url.searchParams.has('socks5')) {
-					path = `/?ed=2560&socks5=${url.searchParams.get('socks5')}`;
+					path = `/?socks5=${url.searchParams.get('socks5')}`;
 					RproxyIP = 'false';
 				} else if (url.searchParams.has('socks')) {
-					path = `/?ed=2560&socks5=${url.searchParams.get('socks')}`;
+					path = `/?socks5=${url.searchParams.get('socks')}`;
 					RproxyIP = 'false';
 				}
 
@@ -176,7 +177,7 @@ export default {
 					let total = 24 * 1099511627776;
 
 					if (userAgent && userAgent.includes('mozilla')) {
-						return new Response(`<div style="font-size:13px;">${维列斯Config}</div>`, {
+						return new Response(维列斯Config, {
 							status: 200,
 							headers: {
 								"Content-Type": "text/html;charset=utf-8",
@@ -186,11 +187,11 @@ export default {
 							}
 						});
 					} else {
-						return new Response(`${维列斯Config}`, {
+						return new Response(维列斯Config, {
 							status: 200,
 							headers: {
 								"Content-Disposition": `attachment; filename=${FileName}; filename*=utf-8''${encodeURIComponent(FileName)}`,
-								"Content-Type": "text/plain;charset=utf-8",
+								//"Content-Type": "text/plain;charset=utf-8",
 								"Profile-Update-Interval": "6",
 								"Subscription-Userinfo": `upload=${pagesSum}; download=${workersSum}; total=${total}; expire=${expire}`,
 							}
@@ -395,7 +396,7 @@ async function handleTCPOutBound(remoteSocket, addressType, addressRemote, portR
 		} else {
 			// 否则，尝试使用预设的代理 IP（如果有）或原始地址重试连接
 			if (!proxyIP || proxyIP == '') {
-				proxyIP = atob(`UFJPWFlJUC50cDEuZnh4ay5kZWR5bi5pbw==`);
+				proxyIP = atob('UFJPWFlJUC50cDEuMDkwMjI3Lnh5eg==');
 			} else if (proxyIP.includes(']:')) {
 				portRemote = proxyIP.split(']:')[1] || portRemote;
 				proxyIP = proxyIP.split(']:')[0] || proxyIP;
@@ -1257,11 +1258,20 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, fak
 		if ((addresses.length + addressesapi.length + addressesnotls.length + addressesnotlsapi.length + addressescsv.length) == 0) {
 			// 定义 Cloudflare IP 范围的 CIDR 列表
 			let cfips = [
-				'103.21.244.0/23',
+				'103.21.244.0/24',
 				'104.16.0.0/13',
 				'104.24.0.0/14',
 				'172.64.0.0/14',
-				'103.21.244.0/23',
+				'104.16.0.0/14',
+				'104.24.0.0/15',
+				'141.101.64.0/19',
+				'172.64.0.0/14',
+				'188.114.96.0/21',
+				'190.93.240.0/21',
+				'162.159.152.0/23',
+				'104.16.0.0/13',
+				'104.24.0.0/14',
+				'172.64.0.0/14',
 				'104.16.0.0/14',
 				'104.24.0.0/15',
 				'141.101.64.0/19',
@@ -1286,11 +1296,18 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, fak
 
 				return randomIP.join('.');
 			}
-			addresses = addresses.concat('127.0.0.1:1234#测试节点');
-			if (hostName.includes(".workers.dev")) {
-				addressesnotls = addressesnotls.concat(cfips.map(cidr => generateRandomIPFromCIDR(cidr) + '#TUN节点'));
+			addresses = addresses.concat('127.0.0.1:1234#CFnat');
+			let counter = 1;
+			if (hostName.includes("worker") || hostName.includes("notls")) {
+				const randomPorts = httpPorts.concat('80');
+				addressesnotls = addressesnotls.concat(
+					cfips.map(cidr => generateRandomIPFromCIDR(cidr) + ':' + randomPorts[Math.floor(Math.random() * randomPorts.length)] + '#CF随机节点' + String(counter++).padStart(2, '0'))
+				);
 			} else {
-				addresses = addresses.concat(cfips.map(cidr => generateRandomIPFromCIDR(cidr) + '#TUN节点'));
+				const randomPorts = httpsPorts.concat('443');
+				addresses = addresses.concat(
+					cfips.map(cidr => generateRandomIPFromCIDR(cidr) + ':' + randomPorts[Math.floor(Math.random() * randomPorts.length)] + '#CF随机节点' + String(counter++).padStart(2, '0'))
+				);
 			}
 		}
 	}
@@ -1363,7 +1380,7 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, fak
 		else 订阅器 += `<br>SUBAPI（订阅转换后端）: ${subProtocol}://${subConverter}<br>SUBCONFIG（订阅转换配置文件）: ${subConfig}`;
 		const 动态UUID信息 = (uuid != userID) ? `TOKEN: ${uuid}<br>UUIDNow: ${userID}<br>UUIDLow: ${userIDLow}<br>${userIDTime}TIME（动态UUID有效时间）: ${有效时间} 天<br>UPTIME（动态UUID更新时间）: ${更新时间} 时（北京时间）<br><br>` : `${userIDTime}`;
 		const 节点配置页 = `
-				<!DOCTYPE html>
+			<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 	<meta charset="UTF-8">
@@ -1672,7 +1689,7 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, fak
 	</body>
 	</html>
 			`;
-		return 节点配置页;
+		return `<div style="font-size:13px;">${节点配置页}</div>`;
 	} else {
 		if (typeof fetch != 'function') {
 			return 'Error: fetch is not available in this environment.';
@@ -1738,12 +1755,15 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, fak
 			console.log(`虚假订阅: ${url}`);
 		}
 
-		if (!userAgent.includes(('CF-Workers-SUB').toLowerCase())) {
+		if (!userAgent.includes(('CF-Workers-SUB').toLowerCase()) && !_url.searchParams.has('b64') && !_url.searchParams.has('base64')) {
 			if ((userAgent.includes('clash') && !userAgent.includes('nekobox')) || (_url.searchParams.has('clash') && !userAgent.includes('subconverter'))) {
 				url = `${subProtocol}://${subConverter}/sub?target=clash&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=${subEmoji}&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
 				isBase64 = false;
 			} else if (userAgent.includes('sing-box') || userAgent.includes('singbox') || ((_url.searchParams.has('singbox') || _url.searchParams.has('sb')) && !userAgent.includes('subconverter'))) {
 				url = `${subProtocol}://${subConverter}/sub?target=singbox&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=${subEmoji}&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
+				isBase64 = false;
+			} else if (userAgent.includes('loon') || (_url.searchParams.has('loon') && !userAgent.includes('subconverter'))) {
+				url = `${subProtocol}://${subConverter}/sub?target=loon&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subConfig)}&emoji=${subEmoji}&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
 				isBase64 = false;
 			}
 		}
@@ -1961,7 +1981,6 @@ function 生成本地订阅(host, UUID, noTLS, newAddressesapi, newAddressescsv,
 				addressid = match[3] || address;
 			}
 
-			const httpPorts = ["8080", "8880", "2052", "2082", "2086", "2095"];
 			if (!isValidIPv4(address) && port == "-1") {
 				for (let httpPort of httpPorts) {
 					if (address.includes(httpPort)) {
@@ -2033,7 +2052,7 @@ function 生成本地订阅(host, UUID, noTLS, newAddressesapi, newAddressescsv,
 		let 最终路径 = path;
 		let 节点备注 = '';
 		const matchingProxyIP = proxyIPPool.find(proxyIP => proxyIP.includes(address));
-		if (matchingProxyIP) 最终路径 += `&proxyip=${matchingProxyIP}`;
+		if (matchingProxyIP) 最终路径 = `/?proxyip=${matchingProxyIP}`;
 
 		if (proxyhosts.length > 0 && (伪装域名.includes('.workers.dev'))) {
 			最终路径 = `/${伪装域名}${最终路径}`;
